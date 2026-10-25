@@ -1,6 +1,7 @@
 import { Controller, Get, Param, ParseIntPipe, Query, Post, Body } from '@nestjs/common';
 import { TicketsService } from './tickets.service.js';
 import { Ticket } from './ticket.interface.js';
+import { CreateTicketDto } from './dto/create-ticket.dto.js';
 
 @Controller('tickets')
 export class TicketsController {
@@ -18,7 +19,7 @@ export class TicketsController {
     }
 
     @Post()
-    create(@Body() payload: any){
-        return this.ticketService.create(payload);
+    create(@Body() createTicketDto: CreateTicketDto ){
+        return this.ticketService.create(createTicketDto);
     }
 }
