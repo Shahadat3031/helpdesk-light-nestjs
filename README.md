@@ -1,118 +1,154 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Helpdesk Light (NestJS)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A small helpdesk ticket API built with NestJS, runnable locally, with Docker Compose, or on Kubernetes (minikube).
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+All routes are prefixed with `/api` (see `src/main.ts`).
 
-## Description
+| Method | Route              | Description     |
+| ------ | ------------------ | --------------- |
+| GET    | `/api`             | App root        |
+| GET    | `/api/tickets`     | List tickets    |
+| GET    | `/api/tickets/:id` | Get one ticket  |
+| POST   | `/api/tickets`     | Create a ticket |
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Ticket body: `subject` (string), `description` (string), `priority` (`low` | `medium` | `high`).
 
-## Project setup
+---
+
+## 1. Run locally
 
 ```bash
-$ npm install
+npm install
+npm run start:dev        # watch mode
 ```
 
-## Compile and run the project
+Open http://localhost:3000/api
+
+---
+
+## 2. Run with Docker Compose
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+docker compose up --build -d
 ```
 
-## Run tests
+Open http://localhost:3005/api (host port `3005` maps to container port `3000`).
+
+Stop:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+docker compose down
 ```
 
-## Deployment
+---
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## 3. Run on Kubernetes (minikube)
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### Step 1 — Start minikube
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+minikube start
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Step 2 — Build the image
 
-## Observability
+```bash
+docker build -t helpdesk-light-nestjs_app:latest .
+```
 
-In production applications, observability is essential for understanding how your system behaves, detecting issues early, and maintaining reliable performance.
+### Step 3 — Load the image into minikube
 
-[NestJS Observe](https://observe.nestjs.com) automatically instruments your NestJS application, giving you deep visibility into your system with minimal setup:
+minikube has its own Docker daemon, so the image must be copied into it.
 
-- **Distributed tracing:** Follow requests across services and understand how they flow through your system.
-- **Waterfall analysis:** Visualize request execution and identify slow operations, bottlenecks, and unexpected delays.
-- **Performance analysis:** Analyze application performance in real time and quickly pinpoint areas that need optimization.
-- **Metrics:** Track key application and infrastructure metrics to understand system health and performance trends.
-- **Logging:** Centralize and correlate logs with traces and other telemetry to make debugging easier.
-- **Error tracking:** Detect errors quickly and investigate their root causes with the surrounding context.
-- **SLA monitoring:** Track service-level objectives and identify when your application is approaching or exceeding defined thresholds.
-- **Alarms and alerts:** Set up alerts for critical errors, performance degradation, SLA violations, and other anomalies so your team can react quickly.
+```bash
+minikube image load helpdesk-light-nestjs_app:latest
+minikube image ls | grep helpdesk     # verify it is there
+```
 
-This project is already instrumented. Create a free account at [observe.nestjs.com](https://observe.nestjs.com), add an application, and paste the generated app key and secret into the `ObserveModule.forRoot()` call in `src/app.module.ts`.
+> Alternative to steps 2–3: build directly inside minikube
+>
+> ```bash
+> eval $(minikube docker-env)
+> docker build -t helpdesk-light-nestjs_app:latest .
+> ```
 
-The free plan needs no payment details and covers 300,000 events a month. You can also browse the [live demo](https://www.observe-demo.nestjs.com/dashboard) first - the whole dashboard over a busy service's data, with nothing to install.
+### Step 4 — Apply the manifests
 
-## Resources
+```bash
+kubectl apply -f deployment.yaml -f service.yaml
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+### Step 5 — Wait for pods to be ready
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Auto-instrument your application with [NestJS Observe](https://observe.nestjs.com). Distributed tracing, metrics, and logging made easy. Error tracking and performance monitoring for your NestJS applications.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```bash
+kubectl get pods -w      # wait for 2 pods: Running 1/1, then Ctrl+C
+```
 
-## Support
+### Step 6 — Get the URL
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+minikube service helpdesk-light-nestjs-app --url
+```
 
-## Stay in touch
+Prints something like `http://192.168.49.2:30080`. Remember to add `/api`:
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```bash
+curl http://192.168.49.2:30080/api/tickets
 
-## License
+curl -X POST http://192.168.49.2:30080/api/tickets \
+  -H "Content-Type: application/json" \
+  -d '{"subject":"Test","description":"Hello","priority":"low"}'
+```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+---
+
+## Updating after code changes
+
+```bash
+docker build -t helpdesk-light-nestjs_app:latest .
+minikube image load helpdesk-light-nestjs_app:latest
+kubectl rollout restart deploy/helpdesk-light-nestjs-app
+```
+
+After changing only the YAML files:
+
+```bash
+kubectl apply -f deployment.yaml -f service.yaml
+```
+
+---
+
+## Troubleshooting
+
+| Symptom                       | Cause / Fix                                                         |
+| ----------------------------- | ------------------------------------------------------------------- |
+| `Cannot GET /`                | Normal — routes start with `/api`. Use `/api` or `/api/tickets`.     |
+| `ErrImageNeverPull`           | Image not inside minikube. Redo Step 3.                             |
+| `CrashLoopBackOff`            | App crashing. Check logs: `kubectl logs deploy/helpdesk-light-nestjs-app` |
+| Created ticket "disappears"   | 2 replicas each keep their own in-memory data. For testing: `kubectl scale deploy/helpdesk-light-nestjs-app --replicas=1` |
+
+Useful commands:
+
+```bash
+kubectl get all                                   # see deployment, pods, service
+kubectl describe pod <pod-name>                   # detailed pod events
+kubectl logs -f deploy/helpdesk-light-nestjs-app  # follow logs
+```
+
+---
+
+## Cleanup
+
+```bash
+kubectl delete -f deployment.yaml -f service.yaml   # remove app from cluster
+minikube stop                                       # stop the cluster
+```
+
+---
+
+## Kubernetes files
+
+- `deployment.yaml` — 2 replicas, image `helpdesk-light-nestjs_app:latest`, `imagePullPolicy: Never` (uses the local image, never pulls), container port `3000`, CPU/memory limits.
+- `service.yaml` — `NodePort` service, exposes port `3000` on node port `30080`.
+
+> Note: Kubernetes object names (`metadata.name`, labels) must use `-`, not `_`. Docker image names may use `_`.
