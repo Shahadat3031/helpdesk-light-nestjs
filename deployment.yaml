@@ -1,0 +1,32 @@
+version: app/v1
+kind: Deployment
+
+metadata:
+  name: helpdesk-light-nestjs_app
+
+spec:
+  replica: 2
+
+  selector:
+    matchLabels:
+      app: helpdesk-light-nestjs-app
+
+  template:
+    metadata:
+      labels:
+        app: helpdesk-light-nestjs-app
+
+  spec:
+    container: helpdesk-light-nestjs-app
+    image: helpdesk-light-nestjs-app
+    imagePullPolicy: Never
+
+    ports:
+      - containerPort: 3000
+
+
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+
+
