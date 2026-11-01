@@ -19,10 +19,20 @@ spec:
     spec:
       containers:
         - name: helpdesk-light-nestjs-app
-          image: helpdesk-light-nestjs-app
+          image: helpdesk-light-nestjs_app:latest
           imagePullPolicy: Never
 
           ports:
             - containerPort: 3000
 
+          env:
+            - name: NODE_ENV
+              value: production
 
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
