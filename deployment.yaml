@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: helpdesk-light-nestjs-app
-          image: helpdesk-light-nestjs_app:latest
+          image: helpdesk-lite-app:latest
           imagePullPolicy: Never
 
           ports:
@@ -36,3 +36,4 @@ spec:
             limits:
               memory: "512Mi"
               cpu: "500m"
+

@@ -3,8 +3,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: helpdesk-lite-app-nestjs
     ports:
       - "3005:3000"
     environment:
       - NODE_ENV=production
-    restart: always
+    restart: unless-stopped
